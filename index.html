@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="MobileOptimized" content="320"/>
+        <title>Hello H5+</title>
+        <script type="text/javascript" src="js/common.js"></script>
+        <link rel="stylesheet" href="css/mui.min.css">
+        <style>
+            header#header {
+                position: relative;
+            }
+            .mui-icon-loop{
+                line-height: 44px;
+            }
+            .mui-btn-primary{
+                position:absolute;
+                right:10px;
+            }
+            table{border-right:1px solid #2196F3;border-bottom:1px solid #2196F3}
+            table td{border-left:1px solid #2196F3;border-top:1px solid #2196F3;text-align: center;}
+        </style>
+        
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8"/>
+    </head>
+    <body>
+        <header id="header">
+            <div class="nvbt iback" onclick="plus.runtime.quit()"></div>
+            <div class="nvtt">小猪巴士</div>
+            <div class="mui-icon mui-icon-loop" onclick="xhrCreate();"></div>
+        </header>
+        
+        <div class="mui-card">
+            <div class="mui-card-content">
+                <div id="time" class="mui-card-content-inner">
+                    这是一个最简单的卡片视图控件；卡片视图常用来显示完整独立的一段信息，比如一篇文章的预览图、作者信息、点赞数量等
+                </div>
+            </div>
+        </div>
+        
+        <div class="mui-card">
+            <div class="mui-card-content">
+                <div class="mui-card-header">账户信息:</div>
+                <div id="acc" class="mui-card-content-inner"></div>
+            </div>
+        </div>
+        <div class="mui-card">
+            <div class="mui-card-content">
+                <div class="mui-card-header">短信记录:</div>
+                <div id="acc2" class="mui-card-content-inner"></div>
+            </div>
+        </div>
+        <div class="mui-card">
+            <div class="mui-card-content">
+                <div class="mui-card-header">快速充值:</div>
+                <form class="mui-input-group">
+                    <div class="mui-button-row">
+                        <input id="put" type="text" placeholder="输入订单号">
+                        <button type="button" class="mui-btn mui-btn-primary" onclick="recharge();">充值</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </body>
+    <script type="text/javascript" src="js/immersed.js" ></script>
+    <script type="text/javascript" src="js/owo.js"></script>
+    <script type="text/javascript">
+        xhrCreate();
+        const myDate = new Date();
+        let year = myDate.getFullYear();
+        let month = myDate.getMonth()+1;
+        let day = myDate.getDate();
+        function cutString(original,before,after,index){index = index || 0;if (typeof index === "number") {const P = original.indexOf(before, index);if (P > -1) {if (after) {const f = original.indexOf(after, P + 1);return (f>-1)? original.slice(P + before.toString().length, f):console.error("owo [在文本中找不到 参数三 "+after+"]");} else {return original.slice(P + before.toString().length);}} else {console.error("owo [在文本中找不到 参数一 " + before + "]");}} else {console.error("owo [sizeTransition:" + index + "不是一个整数!]");}
+        }
+    function recharge(){
+        var re = document.getElementById("put");
+        const xhr=new plus.net.XMLHttpRequest();
+        xhr.open( "POST", "http://shjmpt.com:8000/userManage/Api.aspx" );
+        xhr.onload=function(){
+            alert(xhr.responseText);
+        }
+        
+        let data=`tradeNo=${re.value}&userName=pandelion`;
+        xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+        // 发送HTTP请求
+        xhr.send(data);
+    }
+    
+    function CreateNode(str)
+    {
+        var NewDiv = document.createElement("div");
+        NewDiv.id = "dd";
+        var NewText = document.createTextNode(str);
+        NewDiv.appendChild(NewText);
+        return NewDiv;
+    }
+    //收取短信记录
+    function shortMessage(){
+        const tab = new plus.net.XMLHttpRequest();
+        tab.open("GET",`http://shjmpt.com:8000/userManage/Message.aspx?selectBTime=${year}-${month}-${day}`);
+        tab.onload = function (){
+            let table = "<table"+cutString(tab.responseText,"<table","table>")+"table>";
+            const node = document.getElementById("acc2");
+            const newNode = CreateNode(table);
+            table=table.replace(/【小猪巴士】您的验证码为：/g,"");
+            table=table.replace(/，2分钟内有效，请尽快验证。/g,"");
+            table=table.replace(/<th>项目名称<\/th>/g,"");
+            table=table.replace(/<td>小猪巴士<\/td>/g,"");
+            table=table.replace(/<th>项目价格<\/th>/g,"");
+            table=table.replace(/<th>实际价格<\/th>/g,"");
+            table=table.replace(/<td>0.100<\/td>/g,"");
+            table=table.replace(/<th>完成状态<\/th>/g,"");
+            table=table.replace(/<td>成功<\/td>/g,"");
+            table=table.replace(/短信内容/g,"验证码");
+            table=table.replace(/用户余额/g,"余额");
+            table=table.replace(/\r\n/g,"");
+            table=table.replace(/width:35%;/g,"width:15%");
+            node.innerHTML=table;
+            const time = document.getElementById("time");
+            time.innerHTML=`更新时间:${myDate.toLocaleString()}`;
+        }
+        tab.setRequestHeader('Content-Type','application/json');
+        tab.setRequestHeader('Cookie',`ASP.NET_SessionId=qbmou2xpi24xvhltwh3zxelx`);
+        tab.send();
+    }
+    function xhrCreate() {
+        const url="http://api.shjmpt.com:9002/pubApi/uLogin?uName=pandelion&pWord=mmit7750&Developer=Y1ywdDJCpG3BO2s4VzN7Zw%3d%3d";
+        const xhr = new plus.net.XMLHttpRequest();
+        xhr.onload = function () {
+            if ( xhr.status == 200 ) {
+                const acc = document.getElementById("acc");
+                const information =xhr.responseText.split("&");
+                acc.innerHTML=`折扣:${information[5]}折。<br/>账户余额:${information[1]}元。<br/>最多获取号码数:${information[3]}个。<br/>最大登录客户端个数:${information[2]}个。<br/>单个客户端最多获取号码数:${information[4]}个。<br/>key:${information[0]}<br/>`;
+                shortMessage();
+                
+            } else {
+                alert( "xhr请求失败："+xhr.status );
+            }
+        }
+        xhr.open( "GET", url );
+        xhr.send();
+    }
+    </script>
+</html>
