@@ -1,37 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2015 The Qt Company Ltd.
-** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Milian Wolff <milian.wolff@kdab.com>
-** Contact: http://www.qt.io/licensing/
-**
-** This file is part of the QtWebChannel module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL21$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-**
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 "use strict";
 
 var QWebChannelMessageTypes = {
@@ -47,27 +13,22 @@ var QWebChannelMessageTypes = {
     response: 10,
 };
 
-var QWebChannel = function(transport, initCallback)
-{
+const QWebChannel = function(transport, initCallback) {
     if (typeof transport !== "object" || typeof transport.send !== "function") {
-        console.error("The QWebChannel expects a transport object with a send function and onmessage callback property." +
-                      " Given is: transport: " + typeof(transport) + ", transport.send: " + typeof(transport.send));
-        return;
+        console.error(`QWebChannel参数一至少应为一个对象.transport：${typeof(transport)} transport.send：${typeof(transport.send)}`);
+        return null;
     }
-
     var channel = this;
     this.transport = transport;
 
-    this.send = function(data)
-    {
+    this.send = function(data) {
         if (typeof(data) !== "string") {
             data = JSON.stringify(data);
         }
         channel.transport.send(data);
     }
 
-    this.transport.onmessage = function(message)
-    {
+    this.transport.onmessage = function(message){
         var data = message.data;
         if (typeof data === "string") {
             data = JSON.parse(data);
@@ -90,16 +51,11 @@ var QWebChannel = function(transport, initCallback)
 
     this.execCallbacks = {};
     this.execId = 0;
-    this.exec = function(data, callback)
-    {
+    this.exec = function(data, callback) {
         if (!callback) {
-            // if no callback is given, send directly
+            // 如果没有回调，直接发送
             channel.send(data);
             return;
-        }
-        if (channel.execId === Number.MAX_VALUE) {
-            // wrap
-            channel.execId = Number.MIN_VALUE;
         }
         if (data.hasOwnProperty("id")) {
             console.error("Cannot exec message with property id: " + JSON.stringify(data));
@@ -112,8 +68,7 @@ var QWebChannel = function(transport, initCallback)
 
     this.objects = {};
 
-    this.handleSignal = function(message)
-    {
+    this.handleSignal = function(message) {
         var object = channel.objects[message.object];
         if (object) {
             object.signalEmitted(message.signal, message.args);
@@ -122,8 +77,7 @@ var QWebChannel = function(transport, initCallback)
         }
     }
 
-    this.handleResponse = function(message)
-    {
+    this.handleResponse = function(message){
         if (!message.hasOwnProperty("id")) {
             console.error("Invalid response message received: ", JSON.stringify(message));
             return;
@@ -132,8 +86,7 @@ var QWebChannel = function(transport, initCallback)
         delete channel.execCallbacks[message.id];
     }
 
-    this.handlePropertyUpdate = function(message)
-    {
+    this.handlePropertyUpdate = function(message){
         for (var i in message.data) {
             var data = message.data[i];
             var object = channel.objects[data.object];
@@ -146,8 +99,7 @@ var QWebChannel = function(transport, initCallback)
         channel.exec({type: QWebChannelMessageTypes.idle});
     }
 
-    this.debug = function(message)
-    {
+    this.debug = function(message) {
         channel.send({type: QWebChannelMessageTypes.debug, data: message});
     };
 
@@ -405,9 +357,4 @@ function QObject(name, data, webChannel)
     }
 }
 
-//required for use with nodejs
-if (typeof module === 'object') {
-    module.exports = {
-        QWebChannel: QWebChannel
-    };
-}
+export {QWebChannel};
