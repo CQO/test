@@ -1,6 +1,4 @@
-<template>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+<template lang="pug">
+  .root-box
+    router-view
 </template>
-
